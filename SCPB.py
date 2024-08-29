@@ -72,23 +72,20 @@ def exactly_k(vars: List[int], weight: List[int], k):
     # (7) R_{n-1,k} v (X_n ^ R_{n-1,k-w_n})
     print(f"n: {n}, k: {k}, weight: {weight[n]}")
     if k > pos_i(n - 1, k, weight):
-        plus_clause([vars[n]])
-        plus_clause([map_register[n - 1][k - weight[n]]])
+        if k - weight[n] > 0 and k - weight[n] <= pos_i(n - 1, k, weight):
+            plus_clause([vars[n]])
+            plus_clause([map_register[n - 1][k - weight[n]]])
     else:
         plus_clause([map_register[n - 1][k], vars[n]])
         if k - weight[n] > 0 and k - weight[n] <= pos_i(n - 1, k, weight):
             plus_clause([map_register[n - 1][k], map_register[n - 1][k - weight[n]]])
 
     # (8) At Most K: X_i -> ¬R_{i-1,k+1-w_i} for i = 2 to n 
-    # for i in range(2, n + 1):
-    #     print(f"i: {i}, k: {k}, weight: {weight[i]}")
-    #     if k + 1 - weight[i] > 0 and k + 1 - weight[i] <= pos_i(i - 1, k, weight):
-    #         # print(f"i: {i}, k: {k}, weight: {weight[i]}")
-    #         plus_clause([-vars[i], -map_register[i - 1][k + 1 - weight[i]]])
-
-    # (9): Xi = True for i = 1 to n
-    # for i in range(1, n):
-    #     plus_clause([-vars[i]])
+    for i in range(2, n + 1):
+        print(f"i: {i}, k: {k}, weight: {weight[i]}")
+        if k + 1 - weight[i] > 0 and k + 1 - weight[i] <= pos_i(i - 1, k, weight):
+            # print(f"i: {i}, k: {k}, weight: {weight[i]}")
+            plus_clause([-vars[i], -map_register[i - 1][k + 1 - weight[i]]])
 
     return n
 
@@ -100,12 +97,15 @@ def print_solution(n):
         print("UNSAT")
     else:
         solution = sat_solver.get_model()
-        print(f"Solution found: {solution}")
-        for i, val in enumerate(solution, start=1):
-            if i <= n:
-                print(f"X{i} = {int(val > 0)}")
+        if all(val < 0 for val in solution):
+            print("No solution")
+        else:
+            print(f"Solution found: {solution}")
+            for i, val in enumerate(solution, start=1):
+                if i <= n:
+                    print(f"X{i} = {int(val > 0)}")
 
 # Example usage
 # the first element of the list is not used
-n = exactly_k([0, 1, 2, 3, 4], [0, 4, 4, 4, 4], 8) # 4X1 + 4X2 + 4X3 + 4X4 == 16
+n = exactly_k([0, 1, 2, 3, 4], [0, 4, 4, 4, 4], 15) # 4X1 + 4X2 + 4X3 + 4X4 == 16
 print_solution(n)
