@@ -38,7 +38,8 @@ def exactly_k(vars: List[int], weight: List[int], k):
     # (1) X_i -> R_i,j for j = 1 to w_i
     for i in range(1, n):
         for j in range(1, weight[i] + 1):
-            plus_clause([-vars[i], map_register[i][j]])
+            if j <= pos_i(i, k, weight):
+                plus_clause([-vars[i], map_register[i][j]])
 
     # (2) R_{i-1,j} -> R_i,j for j = 1 to pos_{i-1}
     for i in range(2, n):
@@ -107,5 +108,9 @@ def print_solution(n):
 
 # Example usage
 # the first element of the list is not used
-n = exactly_k([0, 1, 2, 3, 4], [0, 4, 4, 4, 4], 15) # 4X1 + 4X2 + 4X3 + 4X4 == 16
+# n = exactly_k([0, 1, 2, 3, 4], [0, 4, 4, 4, 4], 16) # 4X1 + 4X2 + 4X3 + 4X4 == 16
+
+# 10X1 + 2X2 + 6X3 + 11X4 + 21X5 + 4X6 + 8X7 + 3X8 + 8X9 + 10X10 = 20
+n = exactly_k([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [0, 10, 2, 6, 11, 21, 4, 8, 3, 8, 10], 20)
+
 print_solution(n)
